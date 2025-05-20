@@ -1,0 +1,5 @@
+Total Batch Size of RDD Received: 40
+Final Accuracy : 0.1714
+Final Precision: 0.0429
+Final Recall   : 0.2500
+Final F1-score : 0.0732
