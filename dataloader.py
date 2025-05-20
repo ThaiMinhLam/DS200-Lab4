@@ -6,10 +6,9 @@ from pyspark.streaming.dstream import DStream
 from pyspark.ml.linalg import DenseVector
 
 from config import SparkConfig
-
 import json
 
-class DataLoader:
+class StreamingDataLoader:
     def __init__(self, 
         sparkContext:SparkContext, 
         sparkStreamingContext: StreamingContext, 
@@ -26,7 +25,6 @@ class DataLoader:
             hostname=self.sparkConf.stream_host, 
             port=self.sparkConf.port
         )
-
 
     def parse_stream(self) -> DStream:
         record_stream = (

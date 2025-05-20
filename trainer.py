@@ -8,7 +8,7 @@ from pyspark.sql.types import IntegerType, StructField, StructType
 from pyspark.ml.linalg import VectorUDT
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from dataloader import DataLoader
+from dataloader import StreamingDataLoader
 from config import SparkConfig
 
 class Trainer:
@@ -25,7 +25,7 @@ class Trainer:
         self.sc = SparkContext(f"{self.sparkConf.host}[{self.sparkConf.receivers}]", self.sparkConf.appName)
         self.ssc = StreamingContext(self.sc, self.sparkConf.batch_interval)
         self.sqlContext = SQLContext(self.sc)
-        self.dataloader = DataLoader(self.sc, self.ssc, self.sqlContext, self.sparkConf)
+        self.dataloader = StreamingDataLoader(self.sc, self.ssc, self.sqlContext, self.sparkConf)
         
         self.total_batches = 0
 
@@ -53,7 +53,13 @@ class Trainer:
             print(f"Recall: {recall:.4f}")
             print(f"F1 Score: {f1:.4f}")
             print("=" * 10)
-
+            
+            self.model.save(self.save_path)
+            print(f"Model saved to {self.save_path}")
+        else:
+            print("No data received. Skipping training.")
+            return
+        
         print("Total Batch Size of RDD Received:", rdd.count())
         print("+" * 20)
 
@@ -68,7 +74,7 @@ class Trainer:
         self.ssc.start()
         self.ssc.awaitTermination()
 
-    def __predict__(self, rdd: pyspark.RDD) -> DataFrame:     
+    def __predict__(self, timestamp, rdd: pyspark.RDD) -> DataFrame:     
         if not rdd.isEmpty():
             schema = StructType([
                 StructField(name="image", dataType=VectorUDT(), nullable=True),
@@ -90,11 +96,11 @@ class Trainer:
         else:
             self.empty_batches += 1
             if self.empty_batches >= 3:
-                print("+"*20)
+                print("="*20)
                 print(f"Total Batch Size of RDD Received: {self.total_batches}")
                 print(f"Final Accuracy : {accuracy_score(self.y_trues, self.y_preds):.4f}")
                 print(f"Final Precision: {precision_score(self.y_trues, self.y_preds, average='macro'):.4f}")
                 print(f"Final Recall   : {recall_score(self.y_trues, self.y_preds, average='macro'):.4f}")
                 print(f"Final F1-score : {f1_score(self.y_trues, self.y_preds, average='macro'):.4f}")
-                print("+"*20)
+                print("="*20)
                 self.ssc.stop(stopSparkContext=True, stopGraceFully=True)

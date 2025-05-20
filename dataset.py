@@ -10,7 +10,7 @@ class ImageDataset(Dataset):
         self,
         directory,
         label_mode='int',
-        color_mode='grayscale',
+        color_mode='rgb',
         image_size=(32, 32),
         interpolation='bilinear'
     ):

@@ -1,4 +1,6 @@
 import argparse
+import findspark
+findspark.init()
 from trainer import Trainer
 from config import SparkConfig
 from models.model import *
