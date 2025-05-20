@@ -13,6 +13,7 @@ from dataset import ImageDataset
 parser = argparse.ArgumentParser(description='Streams a file to a Spark Streaming Context')
 parser.add_argument('--folder', '-f', help='Data folder', required=True, type=str)
 parser.add_argument('--batch_size', '-b', help='Batch size', required=True, type=int)
+parser.add_argument('--endless', '-e', required=False, type=bool, default=False, help='Enable endless streaming')
 parser.add_argument('--split','-s', help="training or test split", required=False, type=str, default='train')
 parser.add_argument('--sleep','-t', help="streaming interval", required=False, type=int, default=3)
 args = parser.parse_args()
@@ -57,10 +58,11 @@ class Streamer:
         try:
             self.connection.sendall(message)
         except BrokenPipeError:
-            raise ValueError("Connection lost.")
-
+            print("Connection lost.")
+            return False
         except Exception as e:
-            raise ValueError(f"Unexpected error: {e}")
+            print(f"Unexpected error: {e}")
+            return False
 
         return True
     
@@ -86,4 +88,4 @@ if __name__ == '__main__':
     else:
         streamer.stream_dataset()
 
-    streamer.conn.close()
+    streamer.connection.close()
