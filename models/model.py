@@ -27,7 +27,7 @@ class RandomForest:
                                             max_depth=max_depth, 
                                             random_state=random_state)
 
-    def train(self, df: DataFrame, save_path: str = None) -> List:
+    def train(self, df: DataFrame, save_path: str = None):
         # Collect to driver
         X_raw = np.array(df.select("image").collect())
         y = np.array(df.select("label").collect()).reshape(-1)
@@ -58,7 +58,7 @@ class RandomForest:
 
         return y_pred, accuracy, precision, recall, f1
 
-    def predict(self, df: DataFrame) -> List:
+    def predict(self, df: DataFrame):
         X_raw = np.array(df.select("image").collect())
         y = np.array(df.select("label").collect()).reshape(-1)
 
