@@ -12,7 +12,7 @@ from dataset import ImageDataset
 
 parser = argparse.ArgumentParser(description='Streams a file to a Spark Streaming Context')
 parser.add_argument('--folder', '-f', help='Data folder', required=True, type=str)
-parser.add_argument('--batch-size', '-b', help='Batch size', required=True, type=int)
+parser.add_argument('--batch_size', '-b', help='Batch size', required=True, type=int)
 parser.add_argument('--split','-s', help="training or test split", required=False, type=str, default='train')
 parser.add_argument('--sleep','-t', help="streaming interval", required=False, type=int, default=3)
 args = parser.parse_args()
@@ -75,12 +75,8 @@ class Streamer:
                 
 if __name__ == '__main__':
     dataset = ImageDataset(
-        directory=os.path.join(args.directory, args.split),
-        label_mode=args.label_mode,
-        color_mode=args.color_mode,
-        image_size=tuple(args.image_size),
-        interpolation=args.interpolation
-        )
+        directory=os.path.join(args.folder, args.split),
+    )
     streamer = Streamer(dataset, args.batch_size, args.split, args.sleep)
     streamer.connect_TCP()
 
